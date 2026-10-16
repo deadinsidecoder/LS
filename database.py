@@ -1,6 +1,7 @@
 import sqlite3
 from random import choice
 
+import queries
 from config import LENGTH, ALPHABET
 
 
@@ -15,38 +16,34 @@ class DBManager:
         self.open()
 
     def open(self):
-        query = "CREATE TABLE IF NOT EXISTS urls (short TEXT UNIQUE, long TEXT UNIQUE)"
         with self.connection:
             cursor = self.connection.cursor()
-            cursor.execute(query)
+            cursor.execute(queries.CREATE)
 
     def close(self):
         self.connection.close()
         # print("closed")
 
     def get(self, short: str) -> str | None:
-        query = "SELECT long FROM urls WHERE short = ?"
         with self.connection:
             cursor = self.connection.cursor()
-            cursor.execute(query, (short,))
+            cursor.execute(queries.SELECT_BY_SHORT, (short,))
             result = cursor.fetchone()
         return result[0] if result is not None else None
 
     def add(self, long: str) -> str:
-        query = "INSERT INTO urls (short, long) VALUES (?, ?)"
         if (exists := self._get(long)) is not None:
             return exists
         short = self._unique_short()
         with self.connection:
             cursor = self.connection.cursor()
-            cursor.execute(query, (short, long))
+            cursor.execute(queries.INSERT, (short, long))
         return short
 
     def _get(self, long: str) -> str | None:
-        query = "SELECT short FROM urls WHERE long = ?"
         with self.connection:
             cursor = self.connection.cursor()
-            cursor.execute(query, (long,))
+            cursor.execute(queries.SELECT_BY_LONG, (long,))
             result = cursor.fetchone()
         return result[0] if result is not None else None
 
