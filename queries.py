@@ -1,10 +1,13 @@
 CREATE = """CREATE TABLE IF NOT EXISTS urls (
-    short TEXT UNIQUE,
-    long TEXT UNIQUE
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    short TEXT UNIQUE NOT NULL,
+    long TEXT UNIQUE NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    clicks_count INTEGER DEFAULT 0
 )"""
 
-SELECT_BY_SHORT = "SELECT long FROM urls WHERE short = ?"
+SELECT_BY_SHORT = "SELECT * FROM urls WHERE short = ?"
 
-SELECT_BY_LONG = "SELECT short FROM urls WHERE long = ?"
+SELECT_BY_LONG = "SELECT * FROM urls WHERE long = ?"
 
-INSERT = "INSERT INTO urls (short, long) VALUES (?, ?)"
+INSERT = "INSERT INTO urls (short, long) VALUES (?, ?) RETURNING *"
