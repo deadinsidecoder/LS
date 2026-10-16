@@ -11,3 +11,5 @@ SELECT_BY_SHORT = "SELECT * FROM urls WHERE short = ?"
 SELECT_BY_LONG = "SELECT * FROM urls WHERE long = ?"
 
 INSERT = "INSERT INTO urls (short, long) VALUES (?, ?) RETURNING *"
+
+INCREMENT_CLICKS = "UPDATE urls SET clicks_count = clicks_count + 1 WHERE short = ? RETURNING *"

@@ -34,10 +34,10 @@ class DBManager:
         self.connection.close()
         # print("closed")
 
-    def get(self, short: str) -> URLRecord | None:
+    def get(self, short: str, increment: bool = True) -> URLRecord | None:
         with self.connection:
             cursor = self.connection.cursor()
-            cursor.execute(queries.SELECT_BY_SHORT, (short,))
+            cursor.execute(queries.INCREMENT_CLICKS if increment else queries.SELECT_BY_SHORT, (short,))
             result = cursor.fetchone()
         return URLRecord(*result) if result is not None else None
 
