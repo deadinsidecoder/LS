@@ -3,6 +3,7 @@ from fastapi import FastAPI, Request, Form, Path
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+import atexit
 
 from database import DBManager
 
@@ -11,8 +12,10 @@ from database import DBManager
 
 app = FastAPI()
 templates = Jinja2Templates("templates")
-app.mount("/static", StaticFiles(directory="static"), name="style.css")
 dbmanager = DBManager("database.sqlite3")
+
+app.mount("/static", StaticFiles(directory="static"), name="style.css")
+atexit.register(dbmanager.close)
 
 
 

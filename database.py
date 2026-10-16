@@ -10,7 +10,6 @@ GENERATION_ATTEMPTS = 3
 
 
 class DBManager:
-
     def __init__(self, path: str):
         self.connection = sqlite3.connect(path, check_same_thread=False)
         self.open()
@@ -23,6 +22,7 @@ class DBManager:
 
     def close(self):
         self.connection.close()
+        # print("closed")
 
     def get(self, short: str) -> str | None:
         query = "SELECT long FROM urls WHERE short = ?"
