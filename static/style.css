@@ -1,0 +1,22 @@
+html, body, pre, code, kbd, samp {
+    font-family: 'Press Start 2P', cursive;
+}
+
+body {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+#form-container {
+    padding: 1rem;
+}
+
+#result-container {
+    padding: 1rem;
+}
+
+.nes-field > label {
+    display: block;
+    margin-bottom: 0.5rem;
+}
