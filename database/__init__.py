@@ -1,23 +1,15 @@
 import sqlite3
 from random import choice
-from dataclasses import dataclass
 
-import queries
+from .record import URLRecord
+from .import queries 
+
 from config import LENGTH, ALPHABET
 
 
 
 
 GENERATION_ATTEMPTS = 3
-
-
-@dataclass
-class URLRecord:
-    id: int
-    short: str
-    long: str
-    created_at: int
-    clicks_count: int
 
 
 class DBManager:
