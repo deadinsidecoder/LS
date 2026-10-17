@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import atexit
 
-from database import DBManager
+from database import DBManager, GenerationError, NotFoundError
 
 
 
@@ -27,7 +27,7 @@ def add(request: Request, long: str = Form(...)):
     try:
         record = dbmanager.add(long)
         return templates.get_template("components/result.html").render(short=f"{request.base_url}{record.short}")
-    except Exception:
+    except GenerationError:
         return templates.get_template("components/error.html").render()
 
 
@@ -47,10 +47,11 @@ def stats():
 
 @app.get("/{short}")
 def get_url(request: Request, short: str = Path(...)):
-    record = dbmanager.get(short)
-    if record is not None:
+    try:
+        record = dbmanager.get(short)
         return RedirectResponse(record.long, status_code=302)
-    return templates.TemplateResponse(request, "notfound.html")
+    except NotFoundError:
+        return templates.TemplateResponse(request, "notfound.html")
 
 
 
