@@ -1,6 +1,6 @@
-<div class="nes-container with-title is-rounded">
+<div class="nes-container with-title">
     <p class="title nes-text">Короткая ссылка</p>
     <input type="text" id="short-url" class="nes-input" readonly value="{{ short }}">
-    <a class="nes-btn" href="{{ short }}">Перейти</a>
-    <button class="nes-btn" onclick="navigator.clipboard.writeText('{{ short }}');">Копировать</button>
+    <a class="nes-btn is-primary" style="margin-top: 1rem;" href="{{ short }}">Перейти</a>
+    <button class="nes-btn is-success" style="margin-top: 1rem;" onclick="navigator.clipboard.writeText('{{ short }}');">Копировать</button>
 </div>
