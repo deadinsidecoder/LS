@@ -4,6 +4,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import atexit
+from pydantic import AnyUrl, TypeAdapter, ValidationError
 
 from database import DBManager, GenerationError, NotFoundError
 
@@ -31,11 +32,12 @@ def get(short: str):
 
 @app.post("/json/urls")
 def add(long: str):
-    if not long.startswith(("http://", "https://")):
-        return {"status": "error", "message": "not URL"}
     try:
+        TypeAdapter(AnyUrl).validate_strings(long)
         record = dbmanager.add(long)
         return {"status": "success", "data": record}
+    except ValidationError:
+        return {"status": "error", "message": "invalid URL"}
     except GenerationError:
         return {"status": "error", "message": "generation error"}
 
@@ -46,7 +48,7 @@ def htmx_add(request: Request, long: str = Form(...)):
     if response["status"] == "success":
         record = response["data"]
         return templates.get_template("components/result.html").render(short=f"{request.base_url}{record.short}")
-    return templates.get_template("components/error.html").render()
+    return templates.get_template("components/error.html").render(message=response["message"])
 
 
 @app.get("/", response_class=HTMLResponse)
