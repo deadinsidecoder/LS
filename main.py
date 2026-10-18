@@ -20,15 +20,33 @@ atexit.register(dbmanager.close)
 
 
 
-@app.post("/htmx/urls", response_class=HTMLResponse)
-def add(request: Request, long: str = Form(...)):
+@app.get("/json/urls")
+def get(short: str):
+    try:
+        record = dbmanager.get(short)
+        return {"status": "success", "data": record}
+    except NotFoundError:
+        return {"status": "error", "message": "not found"}
+
+
+@app.post("/json/urls")
+def add(long: str):
     if not long.startswith(("http://", "https://")):
-        return templates.get_template("components/error.html").render()
+        return {"status": "error", "message": "not URL"}
     try:
         record = dbmanager.add(long)
-        return templates.get_template("components/result.html").render(short=f"{request.base_url}{record.short}")
+        return {"status": "success", "data": record}
     except GenerationError:
-        return templates.get_template("components/error.html").render()
+        return {"status": "error", "message": "generation error"}
+
+
+@app.post("/htmx/urls", response_class=HTMLResponse)
+def htmx_add(request: Request, long: str = Form(...)):
+    response = add(long)
+    if response["status"] == "success":
+        record = response["data"]
+        return templates.get_template("components/result.html").render(short=f"{request.base_url}{record.short}")
+    return templates.get_template("components/error.html").render()
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -47,11 +65,11 @@ def stats():
 
 @app.get("/{short}")
 def get_url(request: Request, short: str = Path(...)):
-    try:
-        record = dbmanager.get(short)
+    response = get(short)
+    if response["status"] == "success":
+        record = response["data"]
         return RedirectResponse(record.long, status_code=302)
-    except NotFoundError:
-        return templates.TemplateResponse(request, "notfound.html")
+    return templates.TemplateResponse(request, "notfound.html")
 
 
 
