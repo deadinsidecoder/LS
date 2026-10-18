@@ -10,7 +10,7 @@ from config import LENGTH, ALPHABET
 
 
 
-GENERATION_ATTEMPTS = 3
+DEFAULT_GENERATION_ATTEMPTS = 3
 
 
 class DBManager:
@@ -36,33 +36,16 @@ class DBManager:
             return URLRecord(*result)
         raise NotFoundError
 
-    def add(self, long: str) -> URLRecord:
-        if (exists := self._get_by_long(long)) is not None:
-            return exists
-        short = self._unique_short()
-        with self.connection:
-            cursor = self.connection.cursor()
-            cursor.execute(queries.INSERT, (short, long))
-            record = cursor.fetchone()
-        return URLRecord(*record)
-
-    def _get_by_long(self, long: str) -> URLRecord | None:
-        with self.connection:
-            cursor = self.connection.cursor()
-            cursor.execute(queries.SELECT_BY_LONG, (long,))
-            result = cursor.fetchone()
-        return URLRecord(*result) if result is not None else None
-
-    def _get_by_short(self, short: str) -> URLRecord | None:
-        with self.connection:
-            cursor = self.connection.cursor()
-            cursor.execute(queries.SELECT_BY_SHORT, (short,))
-            result = cursor.fetchone()
-        return URLRecord(*result) if result is not None else None
-
-    def _unique_short(self) -> str:
-        for _ in range(GENERATION_ATTEMPTS):
-            short = "".join(choice(ALPHABET) for _ in range(LENGTH))
-            if self._get_by_short(short) is None:
-                return short
-        raise GenerationError
+    def add(self, long: str, attempts: int = DEFAULT_GENERATION_ATTEMPTS) -> URLRecord:
+        if not attempts:
+            raise GenerationError 
+        short = "".join(choice(ALPHABET) for _ in range(LENGTH))
+        cursor = self.connection.cursor()
+        if (exists := cursor.execute(queries.SELECT_BY_LONG, (long,)).fetchone()) is not None:
+            return URLRecord(*exists)
+        try:
+            with self.connection:
+                result = cursor.execute(queries.INSERT, (short, long)).fetchone()
+                return URLRecord(*result)
+        except sqlite3.IntegrityError:
+            return self.add(long, attempts - 1)
