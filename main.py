@@ -47,8 +47,14 @@ def htmx_add(request: Request, long: str = Form(...)):
     response = add(long)
     if response["status"] == "success":
         record = response["data"]
-        return templates.get_template("components/result.html").render(short=f"{request.base_url}{record.short}")
-    return templates.get_template("components/error.html").render(message=response["message"])
+        return "".join([
+            templates.get_template("components/result.html").render(short=f"{request.base_url}{record.short}"),
+            f'<input id="long-url" class="nes-input" name="long" hx-swap-oob="true" value="{long}">',
+        ])
+    return "".join([
+        templates.get_template("components/error.html").render(message=response["message"]),
+        f'<input id="long-url" class="nes-input is-error" name="long" hx-swap-oob="true" value="{long}">'
+    ])
 
 
 @app.get("/", response_class=HTMLResponse)
