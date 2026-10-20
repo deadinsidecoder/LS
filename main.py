@@ -53,8 +53,13 @@ def htmx_add(request: Request, long: str = Form(...)):
         ])
     return "".join([
         templates.get_template("components/error.html").render(message=response["message"]),
-        f'<input id="long-url" class="nes-input is-error" name="long" hx-swap-oob="true" value="{long}">'
+        f'<input id="long-url" class="nes-input is-error" hx-get="/htmx/retry" hx-trigger="input once" name="long" hx-swap-oob="true" value="{long}">'
     ])
+
+
+@app.get("/htmx/retry", response_class=HTMLResponse)
+def htmx_retry(long: str):
+    return f'<input id="long-url" class="nes-input" name="long" hx-swap-oob="true" value="{long}">'
 
 
 @app.get("/", response_class=HTMLResponse)
