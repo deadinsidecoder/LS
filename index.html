@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
+</head>
+<body>
+    <h2>Link shortener</h2>
+    <input id="long" name="long">
+    <button hx-post="/htmx/shorten" hx-include="#long" hx-target="#short">Shorten</button>
+    <div id="short"></div>
+</body>
+</html>
