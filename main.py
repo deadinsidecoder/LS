@@ -2,7 +2,7 @@ import secrets
 import html
 
 import uvicorn
-from fastapi import FastAPI, Form, Path
+from fastapi import FastAPI, Form, Path, HTTPException
 from fastapi.requests import Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 import validators
@@ -23,28 +23,27 @@ generate_short = lambda: "".join(secrets.choice(ALPHABET) for _ in range(LENGTH)
 @app.post("/api/links")
 def add(long: str):
     if not validators.url(long):
-        return {"status": "error", "message": "Invalid url"}
+        raise HTTPException(400, detail="Invalid url")
     if (result := db.add(connection, generate_short(), long)) is not None:
-        return {"status": "success", "data": result}
-    return {"status": "error", "message": "Short collision"}
+        return result
+    raise HTTPException(400, detail="Short collision")
 
 
 @app.get("/api/links")
 def get(short: str):
     if (result := db.get(connection, short)) is not None:
-        return {"status": "success", "data": result}
-    return {"status": "error", "message": "Not found"}
+        return result
+    raise HTTPException(400, detail="Not found")
 
 
 @app.post("/htmx/shorten", response_class=HTMLResponse)
 def shorten(request: Request, long: str = Form(...)):
-    response = add(long)
-    match response:
-        case {"status": "success", "data": link}:
-            url = f"{request.base_url}{html.escape(link.short)}"
-            return f"""<input value="{url}"> <a href="{url}"><button>Open</button></a>"""
-        case {"status": "error", "message": message}:
-            return f"Error: {message}"
+    try:
+        response = add(long)
+        url = f"{request.base_url}{html.escape(response.short)}"
+        return f"""<input value="{url}"> <a href="{url}"><button>Open</button></a>"""
+    except HTTPException as exception:
+        return f"Error: {exception.detail}"
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -61,9 +60,11 @@ def error():
 
 @app.get("/{short}", response_class=RedirectResponse)
 def redirect(short: str = Path(...)):
-    if (link := db.get(connection, short)) is not None:
-        return link.long
-    return "/error"
+    try:
+        response = get(short)
+        return response.long
+    except HTTPException:
+        return "/error"
 
 
 
