@@ -7,6 +7,7 @@ from fastapi import FastAPI, Form, Path
 from fastapi.requests import Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 import validators
+import atexit
 
 import database as db
 
@@ -15,6 +16,7 @@ import database as db
 
 app = FastAPI()
 connection = db.connect("vault.db")
+atexit.register(connection.close)
 generate_short = lambda: "".join(secrets.choice(string.ascii_uppercase) for _ in range(4))
 
 
