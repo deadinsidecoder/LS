@@ -1,5 +1,4 @@
 import secrets
-import string
 import html
 
 import uvicorn
@@ -10,6 +9,7 @@ import validators
 import atexit
 
 import database as db
+from config import LENGTH, ALPHABET
 
 
 
@@ -17,7 +17,7 @@ import database as db
 app = FastAPI()
 connection = db.connect("vault.db")
 atexit.register(connection.close)
-generate_short = lambda: "".join(secrets.choice(string.ascii_uppercase) for _ in range(4))
+generate_short = lambda: "".join(secrets.choice(ALPHABET) for _ in range(LENGTH))
 
 
 @app.post("/api/links")
