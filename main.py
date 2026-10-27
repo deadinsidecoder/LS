@@ -1,5 +1,6 @@
 import secrets
 import html
+from time import ctime
 
 import uvicorn
 from fastapi import FastAPI, Form, Path, HTTPException
@@ -63,7 +64,7 @@ def error():
 def stats():
     with open("stats.html") as file:
         template = Template(file.read())
-    return template.render(links=db.fetch(connection))
+    return template.render(links=db.fetch(connection), ctime=ctime)
 
 
 @app.get("/{short}", response_class=RedirectResponse)

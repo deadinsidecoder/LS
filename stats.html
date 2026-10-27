@@ -21,9 +21,9 @@
         {% for link in links %}
             <tr>
                 <td>{{ link.id }}</td>
-                <td>{{ link.short }}</td>
+                <td><a href="/{{ link.short }}">{{ link.short }}</a></td>
                 <td>{{ link.long }}</td>
-                <td>{{ link.created_at }}</td>
+                <td>{{ ctime(link.created_at) }}</td>
                 <td>{{ link.clicks_count }}</td>
             </tr>
         {% endfor %}
