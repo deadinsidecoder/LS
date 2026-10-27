@@ -7,6 +7,7 @@ from fastapi.requests import Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 import validators
 import atexit
+from jinja2 import Template
 
 import database as db
 from config import LENGTH, ALPHABET
@@ -58,9 +59,11 @@ def error():
         return file.read()
 
 
-@app.get("/stats")
+@app.get("/stats", response_class=HTMLResponse)
 def stats():
-    return db.fetch(connection)
+    with open("stats.html") as file:
+        template = Template(file.read())
+    return template.render(links=db.fetch(connection))
 
 
 @app.get("/{short}", response_class=RedirectResponse)

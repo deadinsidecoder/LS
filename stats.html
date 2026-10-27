@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
+</head>
+<body>
+    <h2>Statistics</h2>
+    <a href="/">Home</a>
+    
+    <table>
+        <thead>
+            <th>ID</th>
+            <th>short</th>
+            <th>long</th>
+            <th>created_at</th>
+            <th>clicks_count</th>
+        </thead>
+        <tbody>
+        {% for link in links %}
+            <tr>
+                <td>{{ link.id }}</td>
+                <td>{{ link.short }}</td>
+                <td>{{ link.long }}</td>
+                <td>{{ link.created_at }}</td>
+                <td>{{ link.clicks_count }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
