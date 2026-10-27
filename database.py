@@ -40,7 +40,7 @@ def add(connection: sqlite3.Connection, short: str, long: str) -> LinkModel:
     return result
 
 
-def get(connection: sqlite3.Connection, short: str) -> None | LinkModel:
+def click(connection: sqlite3.Connection, short: str) -> None | LinkModel:
     with connection:
         result = connection.execute(
             "UPDATE links SET clicks_count = clicks_count + 1 WHERE short = ? RETURNING *",
@@ -66,6 +66,6 @@ if __name__ == "__main__":
     add(connection, "3", "third")
 
     assert add(connection, "1", "fourth") is None
-    assert get(connection, "4") is None
-    assert get(connection, "2").long == "second"
-    assert get(connection, "2").clicks_count == 2
+    assert click(connection, "4") is None
+    assert click(connection, "2").long == "second"
+    assert click(connection, "2").clicks_count == 2

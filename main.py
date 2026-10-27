@@ -31,7 +31,7 @@ def add(long: str):
 
 @app.get("/api/links")
 def get(short: str):
-    if (result := db.get(connection, short)) is not None:
+    if (result := db.click(connection, short)) is not None:
         return result
     raise HTTPException(400, detail="Not found")
 
