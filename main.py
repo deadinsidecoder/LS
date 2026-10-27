@@ -56,6 +56,11 @@ def index():
 def error():
     with open("error.html") as file:
         return file.read()
+
+
+@app.get("/stats")
+def stats():
+    return connection.execute("SELECT * FROM links").fetchall()
     
 
 @app.get("/{short}", response_class=RedirectResponse)
