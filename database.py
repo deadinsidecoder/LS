@@ -49,6 +49,13 @@ def get(connection: sqlite3.Connection, short: str) -> None | LinkModel:
     return result
 
 
+def fetch(connection: sqlite3.Connection, short: str | None = None) -> list[LinkModel]:
+    return connection.execute(
+        "SELECT * FROM links" if short is None else "SELECT * FROM links WHERE short = ?",
+        (() if short is None else (short,))
+    ).fetchall()
+
+
 
 
 if __name__ == "__main__":

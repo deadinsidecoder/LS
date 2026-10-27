@@ -60,8 +60,8 @@ def error():
 
 @app.get("/stats")
 def stats():
-    return connection.execute("SELECT * FROM links").fetchall()
-    
+    return db.fetch(connection)
+
 
 @app.get("/{short}", response_class=RedirectResponse)
 def redirect(short: str = Path(...)):
