@@ -17,17 +17,10 @@
             <th>created_at</th>
             <th>clicks_count</th>
         </thead>
-        <tbody>
-        {% for link in links %}
-            <tr>
-                <td>{{ link.id }}</td>
-                <td><a href="/{{ link.short }}">{{ link.short }}</a></td>
-                <td>{{ link.long }}</td>
-                <td>{{ ctime(link.created_at) }}</td>
-                <td>{{ link.clicks_count }}</td>
-            </tr>
-        {% endfor %}
+        <tbody id="table">
         </tbody>
     </table>
+    <button id="page-button" hx-get="/htmx/stats" hx-vals='{"page": 0}' hx-target="#table" hx-swap="beforeend">Load more</button>
 </body>
 </html>
+ 

@@ -48,6 +48,30 @@ def shorten(request: Request, long: str = Form(...)):
         return f"Error: {exception.detail}"
 
 
+@app.get("/htmx/stats", response_class=HTMLResponse)
+def table(request: Request, page: int):
+    SIZE = 2
+    template = Template("""
+        {% for link in links %}
+        <tr>
+            <td>{{ link.id }}</td>
+            <td><a href="/{{ link.short }}">{{ link.short }}</a></td>
+            <td>{{ link.long }}</td>
+            <td>{{ ctime(link.created_at) }}</td>
+            <td>{{ link.clicks_count }}</td>
+        </tr>
+        {% endfor %}"""
+    )
+    links = db.fetchmany(connection, page * SIZE, SIZE + 1)
+    if len(links) < SIZE + 1:
+        button = """<p id="page-button" hx-swap-oob="true">end of links</p>"""
+    else:
+        button = f"""<button id="page-button" hx-get="/htmx/stats" hx-vals='{{"page": {page + 1}}}' hx-target="#table" hx-swap="beforeend" hx-swap-oob="true">Load more</button>"""
+        links = links[:-1]
+    return template.render(links=links, ctime=ctime) + button
+
+
+
 @app.get("/", response_class=HTMLResponse)
 def index():
     with open("index.html") as file:
