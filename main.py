@@ -76,19 +76,19 @@ def table(request: Request, page: int):
 
 @app.get("/", response_class=HTMLResponse)
 def index():
-    with open("index.html") as file:
+    with open("templates/index.html") as file:
         return file.read()
 
 
 @app.get("/error", response_class=HTMLResponse)
 def error():
-    with open("error.html") as file:
+    with open("templates/error.html") as file:
         return file.read()
 
 
 @app.get("/stats", response_class=HTMLResponse)
 def stats():
-    with open("stats.html") as file:
+    with open("templates/stats.html") as file:
         template = Template(file.read())
     return template.render(links=db.fetchmany(connection), ctime=ctime)
 
