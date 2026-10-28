@@ -64,7 +64,7 @@ def error():
 def stats():
     with open("stats.html") as file:
         template = Template(file.read())
-    return template.render(links=db.fetch(connection), ctime=ctime)
+    return template.render(links=db.fetchmany(connection), ctime=ctime)
 
 
 @app.get("/{short}", response_class=RedirectResponse)

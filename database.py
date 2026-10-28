@@ -49,11 +49,12 @@ def click(connection: sqlite3.Connection, short: str) -> None | LinkModel:
     return result
 
 
-def fetch(connection: sqlite3.Connection, short: str | None = None) -> list[LinkModel]:
-    return connection.execute(
-        "SELECT * FROM links" if short is None else "SELECT * FROM links WHERE short = ?",
-        (() if short is None else (short,))
-    ).fetchall()
+def fetchone(connection: sqlite3.Connection, short: str) -> None | LinkModel:
+    return connection.execute("SELECT * FROM links WHERE short = ?", (short,)).fetchone()
+
+
+def fetchmany(connection: sqlite3.Connection, offset: int = 0, limit: int = -1) -> list[LinkModel]:
+    return connection.execute("SELECT * FROM links LIMIT ? OFFSET ?", (limit, offset)).fetchall()
 
 
 
