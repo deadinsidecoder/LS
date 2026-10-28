@@ -6,6 +6,7 @@ import uvicorn
 from fastapi import FastAPI, Form, Path, HTTPException
 from fastapi.requests import Request
 from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 import validators
 import atexit
 from jinja2 import Template
@@ -17,6 +18,7 @@ from config import LENGTH, ALPHABET
 
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static") 
 connection = db.connect("vault.db")
 atexit.register(connection.close)
 generate_short = lambda: "".join(secrets.choice(ALPHABET) for _ in range(LENGTH))
