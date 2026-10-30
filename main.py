@@ -24,15 +24,13 @@ atexit.register(connection.close)
 generate_short = lambda: "".join(secrets.choice(ALPHABET) for _ in range(LENGTH))
 
 
-
-
 @app.post("/api/links")
 def create_link(long: str):
     if not validators.url(long):
         raise HTTPException(400, detail="Invalid url")
     if (result := db.add(connection, generate_short(), long)) is not None:
         return result
-    raise HTTPException(400, detail="Short collision")
+    raise HTTPException(409, detail="Short collision")
 
 
 @app.get("/api/links")
@@ -44,14 +42,14 @@ def get_links(offset: int, limit: int):
 def get_link(short: str = Path(...)):
     if (result := db.fetchone(connection, short)) is not None:
         return result
-    raise HTTPException(400, detail="Not found")
+    raise HTTPException(404, detail="Not found")
 
 
 @app.post("/api/links/{short}/click")
 def click_link(short: str = Path(...)):
     if (result := db.click(connection, short)) is not None:
         return result
-    raise HTTPException(400, detail="Not found")
+    raise HTTPException(404, detail="Not found")
 
 
 @app.post("/htmx/shorten", response_class=HTMLResponse)
