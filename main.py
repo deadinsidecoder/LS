@@ -24,8 +24,10 @@ atexit.register(connection.close)
 generate_short = lambda: "".join(secrets.choice(ALPHABET) for _ in range(LENGTH))
 
 
+
+
 @app.post("/api/links")
-def add(long: str):
+def create_link(long: str):
     if not validators.url(long):
         raise HTTPException(400, detail="Invalid url")
     if (result := db.add(connection, generate_short(), long)) is not None:
@@ -34,7 +36,19 @@ def add(long: str):
 
 
 @app.get("/api/links")
-def get(short: str):
+def get_links(offset: int, limit: int):
+    return db.fetchmany(connection, offset, limit)
+
+
+@app.get("/api/links/{short}")
+def get_link(short: str = Path(...)):
+    if (result := db.fetchone(connection, short)) is not None:
+        return result
+    raise HTTPException(400, detail="Not found")
+
+
+@app.post("/api/links/{short}/click")
+def click_link(short: str = Path(...)):
     if (result := db.click(connection, short)) is not None:
         return result
     raise HTTPException(400, detail="Not found")
@@ -43,7 +57,7 @@ def get(short: str):
 @app.post("/htmx/shorten", response_class=HTMLResponse)
 def shorten(request: Request, long: str = Form(...)):
     try:
-        response = add(long)
+        response = create_link(long)
         url = f"{request.base_url}{html.escape(response.short)}"
         return f"""<input value="{url}"> <a href="{url}"><button>Open</button></a>"""
     except HTTPException as exception:
@@ -64,7 +78,7 @@ def table(request: Request, page: int):
         </tr>
         {% endfor %}"""
     )
-    links = db.fetchmany(connection, page * SIZE, SIZE + 1)
+    links = get_links(page * SIZE, SIZE + 1)
     if len(links) < SIZE + 1:
         button = """<p id="page-button" hx-swap-oob="true">end of links</p>"""
     else:
@@ -96,7 +110,7 @@ def stats():
 @app.get("/{short}", response_class=RedirectResponse)
 def redirect(short: str = Path(...)):
     try:
-        response = get(short)
+        response = click_link(short)
         return response.long
     except HTTPException:
         return "/error"
